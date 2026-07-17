@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "file": "/root/git/isolated/mycelium/crates/mycelium-dense/src/lib.rs",
+      "total_items": 18,
+      "non_test_items": 17,
+      "emitted": 2,
+      "gaps": 43,
+      "expressible_pct": 11.76470588235294,
+      "category_counts": {
+        "DeriveAttr": 1,
+        "DeriveSatisfied": 3,
+        "GenericBound": 1,
+        "Impl": 2,
+        "Import": 1,
+        "MultiStmtBody": 6,
+        "Other": 26,
+        "PayloadVariant": 1,
+        "Struct": 1,
+        "TestItem": 1
+      }
+    }
+  ],
+  "totals": {
+    "total_items": 18,
+    "non_test_items": 17,
+    "emitted": 2,
+    "gaps": 43,
+    "expressible_pct": 11.76470588235294,
+    "category_counts": {
+      "DeriveAttr": 1,
+      "DeriveSatisfied": 3,
+      "GenericBound": 1,
+      "Impl": 2,
+      "Import": 1,
+      "MultiStmtBody": 6,
+      "Other": 26,
+      "PayloadVariant": 1,
+      "Struct": 1,
+      "TestItem": 1
+    }
+  },
+  "remap": {
+    "phylum": {
+      "source_crate": "mycelium-dense",
+      "target_phylum": "dense"
+    },
+    "nodules": [
+      {
+        "target_nodule": "dense",
+        "operation": "Keep",
+        "sources": [
+          {
+            "rust_path": "/root/git/isolated/mycelium/crates/mycelium-dense/src/lib.rs",
+            "rust_span": null,
+            "moved_items": []
+          }
+        ],
+        "rationale": "structure-preserving 1:1 (DN-109 §5.3-B v0 default: every emitted nodule keeps its source file's mod-tree position, no restructuring proposed)",
+        "safety": "Safe",
+        "api_surface_changed": false,
+        "identity_neutral": true,
+        "guarantee": "Declared"
+      }
+    ],
+    "idiom_choices": []
+  }
+}

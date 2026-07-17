@@ -1,0 +1,35 @@
+{
+  "records": [
+    {
+      "myc_file": "/tmp/myc-decompose/work/mycelium-value-myc/experiments/vet/lib.myc",
+      "source_file": "/root/git/isolated/mycelium/crates/mycelium-dense/src/lib.rs",
+      "class": "CheckError",
+      "exit_code": 3,
+      "diagnostic": "check-error: check error in `_10DenseSpace12op_guarantee`: unknown type `GuaranteeStrength`",
+      "non_test_items": 17,
+      "emitted_items": 2
+    }
+  ],
+  "total_non_test_items": 17,
+  "total_emitted_items": 2,
+  "total_checked_clean_items": 0,
+  "class_counts": {
+    "CheckError": 1
+  },
+  "phylum": {
+    "ran": true,
+    "ok": false,
+    "nodules": [
+      {
+        "nodule": "dense",
+        "file": "lib.myc",
+        "class": "CheckError",
+        "site": "_10DenseSpace12op_guarantee",
+        "on": null,
+        "message": "unknown type `GuaranteeStrength`"
+      }
+    ],
+    "diagnostic": "unknown type `GuaranteeStrength`"
+  },
+  "total_checked_clean_items_phylum": 0
+}

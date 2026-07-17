@@ -1,0 +1,60 @@
+// nodule: dense
+// `mycelium-dense` — the **Dense paradigm operational surface** (M-230; RFC-0001 §4.1;
+// RFC-0002 §5): typed, dimension-tracked `Dense{dim, dtype}` values and elementwise/embedding
+// ops — the Dense analogue of the VSA `VsaModel` surface.
+//
+// Dimension and dtype are part of the type ([`DenseSpace`] binds both); a mismatch is a typed
+// error, never a silent broadcast or coercion (G2). Per the honesty rule, every op carries an
+// honest per-op tag ([`DenseSpace::op_guarantee`]):
+//
+// - **`neg`** is **`Exact`** — negation never rounds (the dtype grids are symmetric).
+// - **`add`/`sub`/`scale`** are **`Proven`**, carrying a per-element relative ε
+//   ([`Bound`] `Error{eps, Rel}`) with a `ProvenThm` basis: the standard round-to-nearest
+//   relative-error theorem (Higham 2002, Thm 2.2 — the same basis as the M-211 `F32→BF16`
+//   swap), with its side-conditions **checked per element** (exact on-grid inputs; finite,
+//   zero-or-normal, non-overflowing results). A violated side-condition is an explicit
+//   [`DenseError`], never a bound the theorem does not cover (VR-5).
+// - **`dot`/`similarity`** are *measurement helpers* returning bare `f64` (no `Meta` to tag),
+//   mirroring `VsaModel::similarity`. Their value-returning twins **`dot_value`/
+//   `similarity_value`** (M-891) deliver the same `f64` as a `Dense{1, F64}` result carrying a
+//   **`Proven` absolute (ℓ∞) bound**: over exact on-grid F32/BF16 operands every product is
+//   *exact* in the binary64 accumulator (≤ 24-bit significands ⇒ ≤ 48-bit products), so the
+//   only error is the recursive-summation rounding — bounded by the standard `γ`-analysis
+//   (Higham 2002, §4.2), disclosed via [`DenseSpace::dot_abs_eps`] /
+//   [`DenseSpace::similarity_abs_eps`]. Note this is deliberately **not** [`DenseSpace::op_rel_eps`]:
+//   the dtype's per-element rounding ε never enters (inputs are exact, accumulation is f64), and a
+//   per-element *relative* claim on a dot product is false under cancellation — the honest bound
+//   is absolute and dimension-dependent (VR-5).
+//
+// **Honest scope (v1, same as M-211).** Sources must be `Exact`: composing an approximate
+// input's own bound with the op's rounding ε needs the magnitude-aware Dense composition rule
+// that is still open (recorded at M-204/M-211) — refused explicitly via
+// [`DenseError::ApproximateSource`], never fabricated. `F16`/`F64` dtypes are explicitly
+// unsupported (`F64` ops cannot be re-derived against an exact reference in `f64`; `F16` lands
+// with a use case), and subnormal results are refused (outside the cited theorem's
+// side-conditions).
+// @summary: best-effort transpilation via mycelium-transpile (M-873). Declared,
+// unvalidated — no Mycelium parser/typechecker confirms this output; see the
+// accompanying .gap.json for every construct this pass could not express.
+nodule dense;
+
+// The Dense operations this surface supplies (RFC-0001 §4.1 — the Dense analogue of
+// [`VsaOp`](https://docs.rs/mycelium-vsa)'s closed op set).
+type DenseOp = Add | Sub | Neg | Scale | Dot | Similarity;
+
+impl Show[DenseOp] for DenseOp {
+  fn render(x: DenseOp) => Bytes =
+    match x { Add => "Add", Sub => "Sub", Neg => "Neg", Scale => "Scale", Dot => "Dot", Similarity => "Similarity" };
+};
+
+fn eq_DenseOp(a: DenseOp, b: DenseOp) => Binary{1} =
+  match a { Add => match b { Add => 0b1, _ => 0b0 }, Sub => match b { Sub => 0b1, _ => 0b0 }, Neg => match b { Neg => 0b1, _ => 0b0 }, Scale => match b { Scale => 0b1, _ => 0b0 }, Dot => match b { Dot => 0b1, _ => 0b0 }, Similarity => match b { Similarity => 0b1, _ => 0b0 } };
+
+impl DenseSpace {
+  // The honest intrinsic guarantee per op: `neg` never rounds (`Exact`); `add`/`sub`/`scale`
+  // round once (or twice for BF16) under the cited theorem (`Proven`); `dot`/`similarity`
+  // carry the proven binary64 accumulation bound (M-891 — see [`Self::dot_abs_eps`]/
+  // [`Self::similarity_abs_eps`]; `Proven`, never `Exact`: the recursive sum rounds).
+  // Declared: renamed `impl DenseSpace { fn op_guarantee }` -> `_10DenseSpace12op_guarantee` (D4 inherent-impl flat-fn desugar + DN-140 length-prefix mangle, M-664).
+  fn _10DenseSpace12op_guarantee(op: DenseOp) => GuaranteeStrength = match op { Neg => Exact_kw, Add | Sub | Scale | Dot | Similarity => Proven_kw };
+};
